@@ -55,11 +55,12 @@ def rechercheIdentifiant(codeCarte):
               #C'est un eleve
               else:
                      date = time.localtime()
-                     heure = date[3]
-                     minute = date[4]
+                     
+                     #On passe tout en minute
+                     minute = date[4]+60*date[3]
 
-                     #L'heure permet à un eleve de rentrer
-                     if 7 <= heure <= 18 and 30 <= minute:
+                     #L'heure permet à un eleve de rentrer (450min:7H30 et 1110:18H30)
+                     if 450 <= minute <= 1110:
                             autorisation = True
                             sortie += '\n'+'ACCES AUTORISE'
 
@@ -85,6 +86,6 @@ def rechercheIdentifiant(codeCarte):
 #codeCarte = 4367604814160025
 
 #ELEVE EXTERNE
-#codeCarte = 4141405704655090
+codeCarte = 4141405704655090
 
 rechercheIdentifiant(str(codeCarte))
