@@ -3,21 +3,23 @@
 
 import time
 import sqlite3
+import datetime
 
 def lstToString(codeLecteur):
-    
+
     ''' Convertis un string en une liste '''
-    
+
     global codeCarte
     codeCarte = ''
     for i in codeLecteur:
         codeCarte += str(i)
-        
+
     return codeCarte
 
 def rechercheIdentifiant(codeCarte):
 
-    ''' Recherche un code dans une base de sonnée sqlite '''
+    ''' Recherche un code dans une base de donnees sqlite '''
+    ''' Et donne acces ou non en fonction du code '''
 
     global cursor
     global sortie
@@ -50,45 +52,67 @@ def rechercheIdentifiant(codeCarte):
           #C'est un professeur ou un agent
           else:
                  sortie = statut +' : '+ nom +' '+ prenom
-                 
+
     #Le code n'est pas dans la base
     except IndexError:
           carteValide = False
-          sortie = '\n'+'CARTE NON VALIDE'+'\n'
-          
+          sortie = 'CARTE NON VALIDE'
+
     #La carte est valide
     if carteValide == True:
 
-          #C'est un professeur
-          if statut == 'PROFESSEUR':
-                 autorisation = True
-                 sortie += '\n'+'ACCES AUTORISE'+'\n'
+          #L'heure
+          date = time.localtime()
 
+          #La date
+          ajourdHui = datetime.datetime.today()
+          
+          #Le jour de la semaine
+          jour = ajourdHui.weekday()
+
+          #On l'heure en minute
+          minute = date[4]+60*date[3] 
+
+          #C'est un professeur 
+          if statut == 'PROFESSEUR':
+
+                 #On n'est pas le weekend
+                 if jour != 5 and jour != 6:
+                     autorisation = True
+                                         
+                 #On est le weekend
+                 else:
+                     autorisation = False
+    
           #C'est un agent
           elif statut == 'AGENT':
                  autorisation = True
-                 sortie += '\n'+'ACCES AUTORISE'+'\n'
 
           #C'est un eleve
           else:
-                 date = time.localtime()
-                 
-                 #On passe tout en minute
-                 minute = date[4]+60*date[3]
 
-                 #L'heure permet à un eleve de rentrer (450min:7H30 et 1110:18H30)
+                 #Il est entre 7H30 et 18H30
                  if 450 <= minute <= 1110:
-                        autorisation = True
-                        sortie += '\n'+'ACCES AUTORISE'+'\n'
 
-                 #L'heure ne permet pas à un eleve de rentrer
+                     #On n'est pas le weekend
+                     if jour != 5 and jour != 6:
+                         autorisation = True
+                         
+                     #On est le weekend
+                     else:
+                         autorisation = False
+        
+                 #Hors plage horaire
                  else:
                         autorisation = False
-                        sortie += '\n'+'ACCES REFUSE'+'\n'
 
     #La carte n'est pas valide
     else:
-          sortie += '\n'+'ACCES REFUSE'+'\n'
-                 
-    return sortie
+          autorisation = False
 
+    if autorisation == True:
+        sortie += '\n'+'ACCES AUTORISE'+'\n'
+    else:
+        sortie += '\n'+'ACCES REFUSE'+'\n'
+        
+    return sortie
