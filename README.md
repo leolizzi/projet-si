@@ -27,9 +27,9 @@ Quand une personne passe son tag RFiD devant le lecteur, on lit le code et le ch
 Si il n'y est pas on refuse le passage. Si il y est, alors on lit les informations relative à cette personne et les affiche (NOM PRENOM et éventuellement REGIME pour les élèves).
 En fonction de son statut on le laisse passer selon les conditions définies précédemment.
 
-Le programme attend 2s après chaque passage de tag, effece les informations à l'écran avant de tenter de lire un nouveau tag.
+Le programme attend 2s après chaque passage de tag, efface les informations à l'écran avant de tenter de lire un nouveau tag.
 
-Généralement, neuf les tags RFiD contiennnet les valeurs 0000[...]0 alors on assigne une nouvelle valeur au tag à l'aid du programme Write.py et on rajoute une personne avec ce code à la base de donnée avec le programme ajoutBase ou ajoutBase_glade.py (Affichage graphique).
+Généralement, neufs les tags RFiD contiennnent les valeurs 0000[...]0, alors on assigne une nouvelle valeur au tag à l'aide du programme Write.py et on rajoute une personne avec ce code à la base de donnée avec le programme ajoutBase ou ajoutBase_glade.py (Affichage graphique).
 
 
 
