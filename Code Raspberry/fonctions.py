@@ -7,6 +7,10 @@ import MFRC522
 import datetime
 import os
 import signal
+import RPi.GPIO as GPIO
+
+#GPIO.setwarning(False)
+#GPIO.setmode(GPIO.BCM)
 
 def lstToString(codeLecteur):
 
@@ -38,6 +42,7 @@ def rechercheIdentifiant(codeCarte):
 
     #Le code est dans la base
     try:
+
           carteValide = True
 
           #On cherche le code
@@ -81,6 +86,7 @@ def rechercheIdentifiant(codeCarte):
           #C'est un professeur 
           if statut == 'PROFESSEUR':
 
+
                  #On n'est pas le weekend
                  if jour != 5 and jour != 6:
                      autorisation = True
@@ -94,6 +100,7 @@ def rechercheIdentifiant(codeCarte):
                  autorisation = True
 
           #C'est un eleve
+
           else:
 
                  #Il est entre 7H30 et 18H30
@@ -111,69 +118,45 @@ def rechercheIdentifiant(codeCarte):
                  else:
                         autorisation = False
 
-    #La carte n'est pas valide
+    #La carte n'est pas vadlide
     else:
+
           autorisation = False
 
     if autorisation == True:
+        greenBlink(3)
         sortie += '\n'+'ACCES AUTORISE'+'\n'
     else:
+        redBlink(8)
         sortie += '\n'+'ACCES REFUSE'+'\n'
         
     return sortie
 
-def read():
-    ''' Lis les tags RFiD en continue et return le code lu dans le tag'''
+def greenBlink(greenPin):
+    GPIO.setup(greenPin,GPIO.OUT)
     
-    continue_reading = True
+    for i in range(2):
+        GPIO.output(greenPin,GPIO.HIGH)
+        time.sleep(.1)
+        GPIO.output(greenPin,GPIO.LOW)
+        time.sleep(.1)
+        
+    GPIO.output(greenPin,GPIO.HIGH)
+    time.sleep(.5)
+    GPIO.output(greenPin,GPIO.LOW)
 
-    #On efface la console
-    os.system('clear')
+def redBlink(redPin):
+    GPIO.setup(redPin,GPIO.OUT)
+    
+    for i in range(4):
+        GPIO.output(redPin,GPIO.HIGH)
+        time.sleep(.1)
+        GPIO.output(redPin,GPIO.LOW)
+        time.sleep(.1)
+        
+    GPIO.output(redPin,GPIO.HIGH)
+    time.sleep(.5)
+    GPIO.output(redPin,GPIO.LOW)
 
-    # Capture SIGINT for cleanup when the script is aborted
-    def end_read(signal,frame):
-        global continue_reading
-        print 'FIN DE LECTURE'
-        continue_reading = False
-        GPIO.cleanup()
 
-    # Hook the SIGINT
-    signal.signal(signal.SIGINT, end_read)
-
-    # Create an object of the class MFRC522
-    MIFAREReader = MFRC522.MFRC522()
-
-    #print "CTRL+C POUR STOPPER LA LECTURE"
-
-    # This loop keeps checking for chips. If one is near it will get the UID and authenticate
-    while continue_reading:
-
-        # Scan for cards
-        (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
-
-        # Get the UID of the card
-        (status,uid) = MIFAREReader.MFRC522_Anticoll()
-
-        # If we have the UID, continue
-        if status == MIFAREReader.MI_OK:
-
-            # This is the default key for authentication
-            key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
-
-            # Select the scanned tag
-            MIFAREReader.MFRC522_SelectTag(uid)
-
-            # Authenticate
-            status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
-
-            # Check if authenticated
-            if status == MIFAREReader.MI_OK:
-                codeLu = MIFAREReader.MFRC522_Read(8)
-                MIFAREReader.MFRC522_StopCrypto1()
-
-            else:
-                print 'ERREUR D\'AUTHENTIFICATION'+'\n'
-                time.sleep(2)
-                os.system('clear')
-
-    return codeLu
+    
