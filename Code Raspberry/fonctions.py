@@ -123,6 +123,8 @@ def rechercheIdentifiant(codeCarte):
     return sortie
 
 def read():
+    ''' Lis les tags RFiD en continue et return le code lu dans le tag'''
+    
     continue_reading = True
 
     #On efface la console
