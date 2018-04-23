@@ -124,10 +124,16 @@ def rechercheIdentifiant(codeCarte):
           autorisation = False
 
     if autorisation == True:
+        
+        #On fait cligntoter la LED verte
         greenBlink(3)
+        
         sortie += '\n'+'ACCES AUTORISE'+'\n'
     else:
+        
+        #On fait cligntoter la LED rouge
         redBlink(8)
+        
         sortie += '\n'+'ACCES REFUSE'+'\n'
         
     return sortie
