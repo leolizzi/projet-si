@@ -6,7 +6,7 @@ import MFRC522
 import time
 import os
 import signal
-from Fonctions import *
+from fonctions import *
 
 continue_reading = True
 
