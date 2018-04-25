@@ -9,9 +9,6 @@ import os
 import signal
 import RPi.GPIO as GPIO
 
-#GPIO.setwarning(False)
-#GPIO.setmode(GPIO.BCM)
-
 def lstToString(codeLecteur):
 
     ''' Convertis une liste en string '''
@@ -23,6 +20,49 @@ def lstToString(codeLecteur):
 
     return codeCarte
 
+def read():
+
+    ''' Cherche des tags RFiD a lire en continu '''
+    
+    continue_reading = True
+
+    #On efface la console
+    os.system('clear')
+
+    #Capture SIGINT for cleanup when the script is aborted
+    def end_read(signal,frame):
+        global continue_reading
+        print 'FIN DE LECTURE'
+        continue_reading = False
+        GPIO.cleanup()
+
+    #Hook the SIGINT
+    signal.signal(signal.SIGINT, end_read)
+
+    #Create an object of the class MFRC522
+    MIFAREReader = MFRC522.MFRC522()
+
+    #This loop keeps checking for chips. If one is near it will get the UID and authenticate
+    while continue_reading:
+
+        #Scan for cards
+        (status,TagType) = MIFAREReader.MFRC522_Request(MIFAREReader.PICC_REQIDL)
+
+        #Get the UID of the card
+        (status,uid) = MIFAREReader.MFRC522_Anticoll()
+
+        #If we have the UID, continue
+        if status == MIFAREReader.MI_OK:
+
+            #This is the default key for authentication
+            key = [0xFF,0xFF,0xFF,0xFF,0xFF,0xFF]
+
+            #Select the scanned tag
+            MIFAREReader.MFRC522_SelectTag(uid)
+
+            #Authenticate
+            status = MIFAREReader.MFRC522_Auth(MIFAREReader.PICC_AUTHENT1A, 8, key, uid)
+
 def rechercheIdentifiant(codeCarte):
 
     ''' Recherche un code dans une base de donnees sqlite '''
@@ -31,7 +71,7 @@ def rechercheIdentifiant(codeCarte):
     global cursor
     global sortie
     global autorisation
-    
+
     #On se connecte à la base
     conn = sqlite3.connect('datab.db')
     cursor = conn.cursor()
@@ -76,31 +116,30 @@ def rechercheIdentifiant(codeCarte):
 
           #La date
           ajourdHui = datetime.datetime.today()
-          
+
           #Le jour de la semaine
           jour = ajourdHui.weekday()
-          
-          #On l'heure en minute
-          minute = date[4]+60*date[3] 
 
-          #C'est un professeur 
+          #On l'heure en minute
+          minute = date[4]+60*date[3]
+
+          #C'est un professeur
           if statut == 'PROFESSEUR':
 
 
                  #On n'est pas le weekend
                  if jour != 5 and jour != 6:
                      autorisation = True
-                                         
+
                  #On est le weekend
                  else:
                      autorisation = False
-    
+
           #C'est un agent
           elif statut == 'AGENT':
                  autorisation = True
 
           #C'est un eleve
-
           else:
 
                  #Il est entre 7H30 et 18H30
@@ -109,11 +148,11 @@ def rechercheIdentifiant(codeCarte):
                      #On n'est pas le weekend
                      if jour != 5 and jour != 6:
                          autorisation = True
-                         
+
                      #On est le weekend
                      else:
                          autorisation = False
-        
+
                  #Hors plage horaire
                  else:
                         autorisation = False
@@ -129,34 +168,63 @@ def rechercheIdentifiant(codeCarte):
     else:
         redBlink(8)
         sortie += '\n'+'ACCES REFUSE'+'\n'
-        
+
     return sortie
 
 def greenBlink(greenPin):
-    GPIO.setup(greenPin,GPIO.OUT)
+
+    ''' Fais clignoter la LED verte '''
     
+    GPIO.setup(greenPin,GPIO.OUT)
+
     for i in range(2):
         GPIO.output(greenPin,GPIO.HIGH)
         time.sleep(.1)
         GPIO.output(greenPin,GPIO.LOW)
         time.sleep(.1)
-        
+
     GPIO.output(greenPin,GPIO.HIGH)
     time.sleep(.5)
     GPIO.output(greenPin,GPIO.LOW)
 
 def redBlink(redPin):
-    GPIO.setup(redPin,GPIO.OUT)
+
+    ''' Fais clignoter la LED rouge '''
     
+    GPIO.setup(redPin,GPIO.OUT)
+
     for i in range(4):
         GPIO.output(redPin,GPIO.HIGH)
         time.sleep(.1)
         GPIO.output(redPin,GPIO.LOW)
         time.sleep(.1)
-        
+
     GPIO.output(redPin,GPIO.HIGH)
     time.sleep(.5)
     GPIO.output(redPin,GPIO.LOW)
 
+def buzzerTrue(buzzerPin):
+
+    ''' Fait buzzer le buzzer  quand le passage est autorise '''
+
+    GPIO.setup(buzzerPin,GPIO.OUT)
+
+    for i in range(4):
+        GPIO.output(buzzerPin,GPIO.HIGH)
+        time.sleep(.1)
+        GPIO.output(buzzerPin,GPIO.LOW)
+
+def buzzerWrong(buzzerPin):
+
+    ''' Fait buzzer le buzzer  quand le passage est non-autorise '''
+
+    GPIO.setup(buzzerPin,GPIO.OUT)
+
+    GPIO.output(buzzerPin,GPIO.HIGH)
+    time.sleep(2)
+    GPIO.output(buzzerPin,GPIO.LOW)
+
+
+    
 
     
