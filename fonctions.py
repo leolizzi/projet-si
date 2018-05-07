@@ -9,12 +9,11 @@ import os
 import signal
 import RPi.GPIO as GPIO
 
-#GPIO.setwarning(False)
-#GPIO.setmode(GPIO.BCM)
-
 def read():
-
-    ''' Lit les code en continue '''
+    
+    ''' 
+    Lit les code en continue 
+    '''
 
     global status
     global autorisation
@@ -81,7 +80,9 @@ def read():
                 
 def lstToString(codeLecteur):
 
-    ''' Convertis une liste en string '''
+    ''' 
+    Convertis une liste en string 
+    '''
 
     global codeCarte
     codeCarte = ''
@@ -200,6 +201,11 @@ def rechercheIdentifiant(codeCarte):
         redBlink(8)
 
 def greenBlink(greenPin):
+    
+    '''
+    Fais clignoter la LED verte
+    '''
+    
     GPIO.setup(greenPin,GPIO.OUT)
     
     for i in range(2):
@@ -213,6 +219,11 @@ def greenBlink(greenPin):
     GPIO.output(greenPin,GPIO.LOW)
 
 def redBlink(redPin):
+    
+    '''
+    Fais clignoter la LED rouge
+    '''
+    
     GPIO.setup(redPin,GPIO.OUT)
     
     for i in range(4):
