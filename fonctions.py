@@ -93,8 +93,10 @@ def lstToString(codeLecteur):
 
 def rechercheIdentifiant(codeCarte):
 
-    ''' Recherche un code dans une base de donnees sqlite '''
-    ''' Et donne acces ou non en fonction du code '''
+    ''' 
+    Recherche un code dans une base de donnees sqlite
+    et donne acces ou non en fonction du code 
+    '''
 
     global cursor
     global sortie
